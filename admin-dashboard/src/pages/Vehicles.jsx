@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton } from '@mui/material';
+import { Edit, Delete, Visibility } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetch('http://localhost:5000/api/vehicles')
@@ -11,12 +16,8 @@ const VehiclesPage = () => {
   }, []);
 
   return (
-<Paper elevation={2} sx={{ padding: 2, width: '100%' }}>
-    <Paper
-  elevation={2}
-  sx={{ padding: 2, maxWidth: '100%', backgroundColor: 'white' }}
-></Paper>
-          <Typography variant="h6">Vehicles</Typography>
+    <Paper sx={{ padding: 2 }}>
+      <Typography variant="h6">Vehicles</Typography>
       <Table>
         <TableHead>
           <TableRow>
@@ -25,6 +26,7 @@ const VehiclesPage = () => {
             <TableCell>Make</TableCell>
             <TableCell>Model</TableCell>
             <TableCell>Capacity</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -35,6 +37,15 @@ const VehiclesPage = () => {
               <TableCell>{vehicle.make}</TableCell>
               <TableCell>{vehicle.model}</TableCell>
               <TableCell>{vehicle.capacity}</TableCell>
+              <TableCell>
+               {/* // <IconButton color="primary"><Visibility /></IconButton> */}
+               <IconButton color="primary" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
+  <Visibility />
+</IconButton>
+
+                <IconButton color="warning"><Edit /></IconButton>
+                <IconButton color="error"><Delete /></IconButton>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

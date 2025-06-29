@@ -38,9 +38,15 @@ import { Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import RoutesPage from './pages/Routes';
+import RouteDetails from './pages/RouteDetails';
 import VehiclesPage from './pages/Vehicles';
 import StudentsPage from './pages/Students';
 import UsersPage from './pages/Users';
+import VehicleDetails from './pages/VehicleDetails';
+import StudentDetails from './pages/StudentDetails';
+import UserDetails from './pages/UserDetails';
+
+
 
 function App() {
   return (
@@ -50,9 +56,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/routes" element={<RoutesPage />} />
+          <Route path="/routes/:id" element={<RouteDetails />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
+          <Route path="/vehicles/:id" element={<VehicleDetails />} />
+
           <Route path="/students" element={<StudentsPage />} />
-          <Route path="/users/:role" element={<UsersPage />} />
+<Route path="/students/:id" element={<StudentDetails />} />
+<Route path="/users/:role" element={<UsersPage />} />
+<Route path="/user/:id" element={<UserDetails />} />
+
         </Routes>
       </div>
     </div>

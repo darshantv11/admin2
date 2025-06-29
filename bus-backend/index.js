@@ -105,6 +105,9 @@ app.get('/api/vehicles/:id', async (req, res) => {
 });
 
 
+
+
+
 // GET all students
 app.get('/api/students', async (req, res) => {
   try {
@@ -164,6 +167,140 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
+// Update a bus route
+app.put('/api/routes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { route_name, bus_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      'UPDATE bus_routes SET route_name = $1, bus_id = $2 WHERE id = $3 RETURNING *',
+      [route_name, bus_id, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Route not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating route:', err);
+    res.status(500).json({ message: 'Error updating route' });
+  }
+});
+
+// Update a vehicle
+app.put('/api/vehicles/:id', async (req, res) => {
+  const { id } = req.params;
+  const { number_plate, make, model, capacity } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE vehicles
+       SET number_plate = $1, make = $2, model = $3, capacity = $4
+       WHERE id = $5
+       RETURNING *`,
+      [number_plate, make, model, capacity, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Vehicle not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating vehicle:', err);
+    res.status(500).json({ message: 'Error updating vehicle' });
+  }
+});
+app.put('/api/students/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, class: className, guardian_id, route_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE students SET name = $1, class = $2, guardian_id = $3, route_id = $4 WHERE id = $5 RETURNING *`,
+      [name, className, guardian_id, route_id, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating student:', err);
+    res.status(500).json({ message: 'Error updating student' });
+  }
+});
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET name = $1, email = $2, phone = $3 WHERE id = $4 RETURNING *`,
+      [name, email, phone, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ message: 'Error updating user' });
+  }
+});
+app.delete('/api/routes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM bus_routes WHERE id = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Route not found' });
+    }
+
+    res.json({ message: 'Route deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting route:', err);
+    res.status(500).json({ message: 'Error deleting route' });
+  }
+});
+app.delete('/api/vehicles/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM vehicles WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ message: 'Vehicle not found' });
+    res.json({ message: 'Vehicle deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting vehicle:', err);
+    res.status(500).json({ message: 'Error deleting vehicle' });
+  }
+});
+app.delete('/api/students/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM students WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ message: 'Student not found' });
+    res.json({ message: 'Student deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting student:', err);
+    res.status(500).json({ message: 'Error deleting student' });
+  }
+});
+app.delete('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ message: 'Error deleting user' });
+  }
+});
 
 // Start server
 app.listen(5000, () => {

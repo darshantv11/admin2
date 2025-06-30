@@ -1,17 +1,21 @@
-// 📁 Users.jsx – Full Code with View, Edit, Delete
+// FRONTEND: Admin Dashboard (React + Vite + MUI) with Add + Edit User Support
+// --------------------------------------------------
+
+// src/pages/Users.jsx
 import React, { useEffect, useState } from 'react';
 import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
-  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button
+  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem
 } from '@mui/material';
-import { Edit, Delete, Visibility } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const UsersPage = () => {
   const { role } = useParams();
   const [users, setUsers] = useState([]);
+  const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', phone: '', role: role });
   const [selectedUser, setSelectedUser] = useState(null);
   const [editedUser, setEditedUser] = useState({ name: '', email: '', phone: '' });
   const navigate = useNavigate();
@@ -24,6 +28,26 @@ const UsersPage = () => {
     fetch(`http://localhost:5000/api/users?role=${role}`)
       .then(res => res.json())
       .then(data => setUsers(data));
+  };
+
+  const handleDeleteClick = (user) => {
+    fetch(`http://localhost:5000/api/users/${user.id}`, {
+      method: 'DELETE'
+    }).then(() => fetchUsers());
+  };
+
+  const handleAddSubmit = () => {
+    fetch('http://localhost:5000/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    })
+      .then(res => res.json())
+      .then(() => {
+        setAddOpen(false);
+        setNewUser({ name: '', email: '', phone: '', role });
+        fetchUsers();
+      });
   };
 
   const handleEditClick = (user) => {
@@ -45,24 +69,17 @@ const UsersPage = () => {
       });
   };
 
-  const handleDeleteClick = (user) => {
-    setSelectedUser(user);
-    setDeleteOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    fetch(`http://localhost:5000/api/users/${selectedUser.id}`, {
-      method: 'DELETE'
-    })
-      .then(() => {
-        setDeleteOpen(false);
-        fetchUsers();
-      });
-  };
-
   return (
     <Paper sx={{ padding: 2 }}>
       <Typography variant="h6">{role.charAt(0).toUpperCase() + role.slice(1)}s</Typography>
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        sx={{ mb: 2 }}
+        onClick={() => setAddOpen(true)}
+      >
+        Add {role.charAt(0).toUpperCase() + role.slice(1)}
+      </Button>
       <Table>
         <TableHead>
           <TableRow>
@@ -81,7 +98,7 @@ const UsersPage = () => {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.phone}</TableCell>
               <TableCell>
-                <IconButton color="primary" onClick={() => navigate(`/user/${user.id}`)}>
+                <IconButton color="primary" onClick={() => navigate(`/users/${user.id}`)}>
                   <Visibility />
                 </IconButton>
                 <IconButton color="warning" onClick={() => handleEditClick(user)}>
@@ -96,8 +113,41 @@ const UsersPage = () => {
         </TableBody>
       </Table>
 
+      {/* Add Dialog */}
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
+        <DialogTitle>Add New {role.charAt(0).toUpperCase() + role.slice(1)}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            fullWidth
+            margin="dense"
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="dense"
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+          />
+          <TextField
+            label="Phone"
+            fullWidth
+            margin="dense"
+            value={newUser.phone}
+            onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddSubmit}>Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Dialog */}
       <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
-        <DialogTitle>Edit User</DialogTitle>
+        <DialogTitle>Edit {role.charAt(0).toUpperCase() + role.slice(1)}</DialogTitle>
         <DialogContent>
           <TextField
             label="Name"
@@ -124,17 +174,6 @@ const UsersPage = () => {
         <DialogActions>
           <Button onClick={() => setEditOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleEditSubmit}>Save</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete user "{selectedUser?.name}"?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDeleteConfirm}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Paper>

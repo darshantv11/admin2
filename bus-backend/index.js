@@ -302,6 +302,167 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+app.post('/api/vehicles', async (req, res) => {
+  const { number_plate, make, model, capacity, driver_id, attender_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO vehicles (number_plate, make, model, capacity, driver_id, attendant_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
+        number_plate,
+        make,
+        model,
+        capacity ? parseInt(capacity) : null,
+        driver_id || null,
+        attender_id || null
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error inserting vehicle:', err);
+    res.status(500).json({ message: 'Failed to add vehicle' });
+  }
+});
+
+
+// POST - Add a new route
+app.post('/api/routes', async (req, res) => {
+  const { route_name, bus_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO bus_routes (route_name, bus_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [route_name, bus_id || null]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error inserting route:', err);
+    res.status(500).json({ message: 'Failed to add route' });
+  }
+});
+
+// POST - Add a new stop to a route
+app.post('/api/stops', async (req, res) => {
+  const { route_id, name, latitude, longitude, sequence } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO bus_stops (route_id, name, latitude, longitude, sequence)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [route_id, name, latitude, longitude, sequence]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('❌ Error adding stop:', err);
+    res.status(500).json({ message: 'Failed to add stop' });
+  }
+});
+app.put('/api/stops/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, latitude, longitude, sequence } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE bus_stops
+       SET name = $1, latitude = $2, longitude = $3, sequence = $4
+       WHERE id = $5
+       RETURNING *`,
+      [name, latitude, longitude, sequence, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Stop not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('❌ Error updating stop:', err);
+    res.status(500).json({ message: 'Failed to update stop' });
+  }
+});
+
+app.delete('/api/stops/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query('DELETE FROM bus_stops WHERE id = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Stop not found' });
+    }
+
+    res.json({ message: 'Stop deleted successfully' });
+  } catch (err) {
+    console.error('❌ Error deleting stop:', err);
+    res.status(500).json({ message: 'Failed to delete stop' });
+  }
+});
+
+// // Add a new student
+// app.post('/api/students', async (req, res) => {
+//   const { name, class: className, guardian_id, route_id } = req.body;
+
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO students (name, class, guardian_id, route_id)
+//        VALUES ($1, $2, $3, $4)
+//        RETURNING *`,
+//       [name, className, guardian_id, route_id]
+//     );
+
+//     res.status(201).json(result.rows[0]);
+//   } catch (err) {
+//     console.error('Error inserting student:', err);
+//     res.status(500).json({ message: 'Failed to add student' });
+//   }
+// });
+
+// // Add a new student
+// app.post('/api/students', async (req, res) => {
+//   const { name, class: className, guardian_id, route_id } = req.body;
+
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO students (name, class, guardian_id, route_id)
+//        VALUES ($1, $2, $3, $4)
+//        RETURNING *`,
+//       [name, className, guardian_id, route_id]
+//     );
+
+//     res.status(201).json(result.rows[0]);
+//   } catch (err) {
+//     console.error('Error inserting student:', err);
+//     res.status(500).json({ message: 'Failed to add student' });
+//   }
+// });
+// POST: Add new student
+app.post('/api/students', async (req, res) => {
+  const { name, class: className, guardian_id, route_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO students (name, class, guardian_id, route_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [name, className, guardian_id, route_id]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('❌ Error inserting student:', err);
+    res.status(500).json({ message: 'Failed to add student' });
+  }
+});
+
+
+
 // Start server
 app.listen(5000, () => {
   console.log('🚀 Backend server running at http://localhost:5000');

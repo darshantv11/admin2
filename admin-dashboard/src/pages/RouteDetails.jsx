@@ -14,21 +14,93 @@ import {
   ListItem,
   ListItemText,
   Avatar,
-  Stack
+  Stack,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, Button, IconButton
 } from '@mui/material';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const RouteDetails = () => {
   const { id } = useParams();
   const [route, setRoute] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedStop, setSelectedStop] = useState(null);
+  const [newStop, setNewStop] = useState({
+    name: '',
+    latitude: '',
+    longitude: '',
+    sequence: ''
+  });
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/routes/${id}`)
       .then(res => res.json())
       .then(data => setRoute(data));
   }, [id]);
+
+  const refreshRoute = () => {
+    fetch(`http://localhost:5000/api/routes/${id}`)
+      .then(res => res.json())
+      .then(data => setRoute(data));
+  };
+
+  const handleAddStop = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/stops', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newStop, route_id: route.id })
+      });
+
+      if (res.ok) {
+        setAddOpen(false);
+        setNewStop({ name: '', latitude: '', longitude: '', sequence: '' });
+        refreshRoute();
+      }
+    } catch (err) {
+      console.error('Failed to add stop', err);
+    }
+  };
+
+  const handleEditStop = (stop) => {
+    setSelectedStop(stop);
+    setNewStop({ ...stop });
+    setEditOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/stops/${selectedStop.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newStop)
+      });
+      if (res.ok) {
+        setEditOpen(false);
+        refreshRoute();
+      }
+    } catch (err) {
+      console.error('Failed to update stop', err);
+    }
+  };
+
+  const handleDeleteStop = async (stopId) => {
+    if (window.confirm('Are you sure you want to delete this stop?')) {
+      try {
+        await fetch(`http://localhost:5000/api/stops/${stopId}`, {
+          method: 'DELETE'
+        });
+        refreshRoute();
+      } catch (err) {
+        console.error('Failed to delete stop', err);
+      }
+    }
+  };
 
   if (!route) return <Typography sx={{ padding: 4 }}>Loading route details...</Typography>;
 
@@ -82,7 +154,17 @@ const RouteDetails = () => {
             {route.stops && route.stops.length > 0 ? (
               <List>
                 {route.stops.map((stop, index) => (
-                  <ListItem key={index} divider>
+                  <ListItem key={index} divider
+                    secondaryAction={
+                      <>
+                        <IconButton onClick={() => handleEditStop(stop)} color="primary">
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => handleDeleteStop(stop.id)} color="error">
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
+                    }>
                     <ListItemText
                       primary={<><LocationOnIcon sx={{ mr: 1, color: 'gray' }} />{stop.sequence}. {stop.name}</>}
                       secondary={`Latitude: ${stop.latitude}, Longitude: ${stop.longitude}`}
@@ -93,9 +175,51 @@ const RouteDetails = () => {
             ) : (
               <Typography>No stops assigned.</Typography>
             )}
+
+            <Button variant="contained" sx={{ mt: 2 }} onClick={() => setAddOpen(true)}>
+              Add Stop
+            </Button>
           </CardContent>
         </Card>
       </Box>
+
+      {/* Add Dialog */}
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
+        <DialogTitle>Add New Stop</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth label="Stop Name" margin="dense"
+            value={newStop.name} onChange={(e) => setNewStop({ ...newStop, name: e.target.value })} />
+          <TextField fullWidth label="Latitude" margin="dense"
+            value={newStop.latitude} onChange={(e) => setNewStop({ ...newStop, latitude: e.target.value })} />
+          <TextField fullWidth label="Longitude" margin="dense"
+            value={newStop.longitude} onChange={(e) => setNewStop({ ...newStop, longitude: e.target.value })} />
+          <TextField fullWidth label="Sequence" margin="dense"
+            value={newStop.sequence} onChange={(e) => setNewStop({ ...newStop, sequence: e.target.value })} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddStop}>Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+        <DialogTitle>Edit Stop</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth label="Stop Name" margin="dense"
+            value={newStop.name} onChange={(e) => setNewStop({ ...newStop, name: e.target.value })} />
+          <TextField fullWidth label="Latitude" margin="dense"
+            value={newStop.latitude} onChange={(e) => setNewStop({ ...newStop, latitude: e.target.value })} />
+          <TextField fullWidth label="Longitude" margin="dense"
+            value={newStop.longitude} onChange={(e) => setNewStop({ ...newStop, longitude: e.target.value })} />
+          <TextField fullWidth label="Sequence" margin="dense"
+            value={newStop.sequence} onChange={(e) => setNewStop({ ...newStop, sequence: e.target.value })} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleEditSubmit}>Save</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

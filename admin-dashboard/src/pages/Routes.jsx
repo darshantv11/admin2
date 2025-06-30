@@ -1,25 +1,27 @@
-// FRONTEND: Edit and Delete for Bus Routes
-// --------------------------------------------------
-
-// src/pages/Routes.jsx
+// 📁 Routes.jsx – Full Code with View, Edit, Delete, Add
 import React, { useEffect, useState } from 'react';
 import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
-  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button
+  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, Select, MenuItem, InputLabel, FormControl
 } from '@mui/material';
-import { Edit, Delete, Visibility } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const RoutesPage = () => {
   const [routes, setRoutes] = useState([]);
+  const [buses, setBuses] = useState([]);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [editedRoute, setEditedRoute] = useState({ route_name: '', bus_id: '' });
+  const [newRoute, setNewRoute] = useState({ route_name: '', bus_id: '' });
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchRoutes();
+    fetch('http://localhost:5000/api/vehicles').then(res => res.json()).then(setBuses);
   }, []);
 
   const fetchRoutes = () => {
@@ -30,8 +32,21 @@ const RoutesPage = () => {
 
   const handleEditClick = (route) => {
     setSelectedRoute(route);
-    setEditedRoute({ route_name: route.route_name, bus_id: route.bus_id });
+    setEditedRoute({ route_name: route.route_name, bus_id: route.bus_id || '' });
     setEditOpen(true);
+  };
+
+  const handleEditSubmit = () => {
+    fetch(`http://localhost:5000/api/routes/${selectedRoute.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editedRoute)
+    })
+      .then(res => res.json())
+      .then(() => {
+        setEditOpen(false);
+        fetchRoutes();
+      });
   };
 
   const handleDeleteClick = (route) => {
@@ -43,34 +58,40 @@ const RoutesPage = () => {
     fetch(`http://localhost:5000/api/routes/${selectedRoute.id}`, {
       method: 'DELETE'
     })
-    .then(() => {
-      setDeleteOpen(false);
-      fetchRoutes();
-    });
+      .then(() => {
+        setDeleteOpen(false);
+        fetchRoutes();
+      });
   };
 
-  const handleEditSubmit = () => {
-    fetch(`http://localhost:5000/api/routes/${selectedRoute.id}`, {
-      method: 'PUT',
+  const handleAddSubmit = () => {
+    fetch('http://localhost:5000/api/routes', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedRoute)
+      body: JSON.stringify(newRoute)
     })
-    .then(res => res.json())
-    .then(() => {
-      setEditOpen(false);
-      fetchRoutes();
-    });
+      .then(res => res.json())
+      .then(() => {
+        setAddOpen(false);
+        setNewRoute({ route_name: '', bus_id: '' });
+        fetchRoutes();
+      });
   };
 
   return (
     <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6">Bus Routes</Typography>
+      <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        Bus Routes
+        <IconButton color="primary" onClick={() => setAddOpen(true)}>
+          <Add />
+        </IconButton>
+      </Typography>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Bus ID</TableCell>
+            <TableCell>Route Name</TableCell>
+            <TableCell>Bus</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -96,24 +117,39 @@ const RoutesPage = () => {
         </TableBody>
       </Table>
 
+      {/* Add Route Modal */}
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
+        <DialogTitle>Add Bus Route</DialogTitle>
+        <DialogContent>
+          <TextField label="Route Name" fullWidth margin="dense" value={newRoute.route_name} onChange={(e) => setNewRoute({ ...newRoute, route_name: e.target.value })} />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Bus</InputLabel>
+            <Select value={newRoute.bus_id} label="Bus" onChange={(e) => setNewRoute({ ...newRoute, bus_id: e.target.value })}>
+              {buses.map(bus => (
+                <MenuItem key={bus.id} value={bus.id}>{bus.number_plate}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddSubmit}>Add</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Edit Modal */}
       <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
         <DialogTitle>Edit Route</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Route Name"
-            fullWidth
-            margin="dense"
-            value={editedRoute.route_name}
-            onChange={(e) => setEditedRoute({ ...editedRoute, route_name: e.target.value })}
-          />
-          <TextField
-            label="Bus ID"
-            fullWidth
-            margin="dense"
-            value={editedRoute.bus_id}
-            onChange={(e) => setEditedRoute({ ...editedRoute, bus_id: e.target.value })}
-          />
+          <TextField label="Route Name" fullWidth margin="dense" value={editedRoute.route_name} onChange={(e) => setEditedRoute({ ...editedRoute, route_name: e.target.value })} />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Bus</InputLabel>
+            <Select value={editedRoute.bus_id} label="Bus" onChange={(e) => setEditedRoute({ ...editedRoute, bus_id: e.target.value })}>
+              {buses.map(bus => (
+                <MenuItem key={bus.id} value={bus.id}>{bus.number_plate}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditOpen(false)}>Cancel</Button>
@@ -121,7 +157,7 @@ const RoutesPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>

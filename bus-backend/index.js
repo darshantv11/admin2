@@ -83,6 +83,7 @@ app.get('/api/vehicles', async (req, res) => {
     res.status(500).send('Error fetching vehicles');
   }
 });
+
 app.get('/api/vehicles/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -104,7 +105,29 @@ app.get('/api/vehicles/:id', async (req, res) => {
   }
 });
 
+app.put('/api/vehicles/:id', async (req, res) => {
+  const { id } = req.params;
+  const { number_plate, make, model, capacity } = req.body;
 
+  try {
+    const result = await pool.query(
+      `UPDATE vehicles
+       SET number_plate = $1, make = $2, model = $3, capacity = $4
+       WHERE id = $5
+       RETURNING *`,
+      [number_plate, make, model, capacity, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Vehicle not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating vehicle:', err);
+    res.status(500).json({ message: 'Error updating vehicle' });
+  }
+});
 
 
 
@@ -117,6 +140,7 @@ app.get('/api/students', async (req, res) => {
     res.status(500).send('Error fetching students');
   }
 });
+
 app.get('/api/students/:id', async (req, res) => {
   const { id } = req.params;
 

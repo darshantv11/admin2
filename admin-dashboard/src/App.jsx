@@ -45,6 +45,7 @@ import UsersPage from './pages/Users';
 import VehicleDetails from './pages/VehicleDetails';
 import StudentDetails from './pages/StudentDetails';
 import UserDetails from './pages/UserDetails';
+import AddRoutePage from './pages/AddRoutePage';
 
 
 
@@ -57,6 +58,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/routes" element={<RoutesPage />} />
           <Route path="/routes/:id" element={<RouteDetails />} />
+          <Route path="/routes/add" element={<AddRoutePage />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
           <Route path="/vehicles/:id" element={<VehicleDetails />} />
 

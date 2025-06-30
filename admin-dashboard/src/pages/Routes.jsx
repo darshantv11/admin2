@@ -1,174 +1,173 @@
 // 📁 Routes.jsx – Full Code with View, Edit, Delete, Add
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
-  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, Select, MenuItem, InputLabel, FormControl
+  Box, Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Button, Avatar, Toolbar, TextField, InputAdornment, Select, MenuItem, FormControl, InputLabel, Stack, Pagination, Divider
 } from '@mui/material';
-import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Edit, Delete, Visibility, CloudUpload, Add, Search, Notifications, Menu as MenuIcon } from '@mui/icons-material';
+
+const mockRoutes = [
+  {
+    code: 'Skl1', type: 'TS', vehicle: 'KA03MV2109', driver: 'Ganesh Prasana K..', attendant: 'William Benjamin', start: '08:00', end: '17:00', stops: 10, students: 45,
+  },
+  {
+    code: 'Skl2', type: 'FS', vehicle: 'KA03MV2109', driver: 'Walter Paliakkara ..', attendant: 'Sebastian Michael', start: '08:00', end: '17:00', stops: 12, students: 23,
+  },
+  {
+    code: 'Skl3', type: 'TS', vehicle: 'KA03MV2109', driver: 'Olivia Emma Alia', attendant: 'Burke Farrell Idris', start: '08:00', end: '17:00', stops: 16, students: 15,
+  },
+  {
+    code: 'Skl4', type: 'TS', vehicle: 'KA03MV2109', driver: 'Nikil Kumar Raj', attendant: 'Chirta Anto Akkara', start: '08:00', end: '17:00', stops: 9, students: 49, highlight: true,
+  },
+  {
+    code: 'Skl5', type: 'FS', vehicle: 'KA03MV2109', driver: 'Noah Theodore Henry', attendant: 'Charlotte Aria Emma', start: '08:00', end: '17:00', stops: 10, students: 43,
+  },
+  {
+    code: 'Skl6', type: 'TS', vehicle: 'KA03MV2109', driver: 'Aurora Hazel', attendant: 'Maverick Sewell', start: '08:00', end: '17:00', stops: 15, students: 44,
+  },
+  {
+    code: 'Skl7', type: 'FS', vehicle: 'KA03MV2109', driver: 'Aryan Arjun Kumar', attendant: 'Warrick Andrew Conrad', start: '08:00', end: '17:00', stops: 12, students: 30,
+  },
+  {
+    code: 'Skl8', type: 'FS', vehicle: 'KA03MV2109', driver: 'Aditya Advik Aarav', attendant: 'Kendrick Tedmond', start: '08:00', end: '17:00', stops: 11, students: 40,
+  },
+  {
+    code: 'Skl9', type: 'FS', vehicle: 'KA03MV2109', driver: 'Amir Ahaan', attendant: 'Victor Hercules', start: '08:00', end: '17:00', stops: 17, students: 38,
+  },
+];
 
 const RoutesPage = () => {
-  const [routes, setRoutes] = useState([]);
-  const [buses, setBuses] = useState([]);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [editedRoute, setEditedRoute] = useState({ route_name: '', bus_id: '' });
-  const [newRoute, setNewRoute] = useState({ route_name: '', bus_id: '' });
+  const [search, setSearch] = useState('');
+  const [type, setType] = useState('');
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchRoutes();
-    fetch('http://localhost:5000/api/vehicles').then(res => res.json()).then(setBuses);
-  }, []);
-
-  const fetchRoutes = () => {
-    fetch('http://localhost:5000/api/routes')
-      .then(res => res.json())
-      .then(data => setRoutes(data));
-  };
-
-  const handleEditClick = (route) => {
-    setSelectedRoute(route);
-    setEditedRoute({ route_name: route.route_name, bus_id: route.bus_id || '' });
-    setEditOpen(true);
-  };
-
-  const handleEditSubmit = () => {
-    fetch(`http://localhost:5000/api/routes/${selectedRoute.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedRoute)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setEditOpen(false);
-        fetchRoutes();
-      });
-  };
-
-  const handleDeleteClick = (route) => {
-    setSelectedRoute(route);
-    setDeleteOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    fetch(`http://localhost:5000/api/routes/${selectedRoute.id}`, {
-      method: 'DELETE'
-    })
-      .then(() => {
-        setDeleteOpen(false);
-        fetchRoutes();
-      });
-  };
-
-  const handleAddSubmit = () => {
-    fetch('http://localhost:5000/api/routes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newRoute)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setAddOpen(false);
-        setNewRoute({ route_name: '', bus_id: '' });
-        fetchRoutes();
-      });
-  };
+  // Filter logic (not functional for mock)
+  const filteredRoutes = mockRoutes;
 
   return (
-    <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Bus Routes
-        <IconButton color="primary" onClick={() => setAddOpen(true)}>
-          <Add />
+    <Box sx={{ p: 0 }}>
+      {/* New Top Bar (matches AddRoutePage) */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
+        {/* Left: Hamburger */}
+        <IconButton sx={{ mr: 2 }}>
+          <MenuIcon fontSize="large" />
         </IconButton>
-      </Typography>
+        {/* Center: Search Bar */}
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', background: '#f6f8fc', borderRadius: 2, px: 2, py: 0.5, minWidth: 400, maxWidth: 480 }}>
+            <FormControl size="small" sx={{ minWidth: 120, background: 'transparent', mr: 1 }}>
+              <Select value={type} displayEmpty inputProps={{ 'aria-label': 'Select Type' }} sx={{ fontWeight: 500, fontSize: 15 }} onChange={e => setType(e.target.value)}>
+                <MenuItem value="">Select Type</MenuItem>
+                <MenuItem value="TS">TS</MenuItem>
+                <MenuItem value="FS">FS</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              size="small"
+              placeholder="Search"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                startAdornment: null,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Search sx={{ color: '#b0b7c3' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ background: 'transparent', minWidth: 180, fontSize: 15 }}
+            />
+          </Box>
+        </Box>
+        {/* Right: Welcome, Live, Notification, Avatar, Upload CSV */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 350, justifyContent: 'flex-end' }}>
+          <Box>
+            <Typography fontWeight={700} fontSize={16} color="#181c32">Welcome Back!</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 8, height: 8, bgcolor: 'green', borderRadius: '50%' }} />
+              <Typography fontSize={13} color="#7e8299">Live: 08:43 AM</Typography>
+            </Box>
+          </Box>
+          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: '#f6f8fc' }} />
+          <Box sx={{ bgcolor: '#fff6f1', borderRadius: '50%', p: 1 }}>
+            <Notifications sx={{ color: '#ff7043' }} />
+          </Box>
+          <Avatar sx={{ bgcolor: '#181c32', width: 40, height: 40, fontWeight: 700, fontSize: 18 }}>WP</Avatar>
+          <Button variant="outlined" startIcon={<CloudUpload />} sx={{ ml: 2, bgcolor: '#fff', borderColor: '#d1d5db', color: '#0e1e40', fontWeight: 600, height: 40 }}>
+            UPLOAD CSV
+          </Button>
+        </Box>
+      </Box>
+      {/* Existing Data/Table Design Below */}
+      {/* Top Bar (old) and Table */}
+      {/* Table Title */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Typography variant="h5" fontWeight={700}>Routes List</Typography>
+        <Button variant="contained" startIcon={<Add />} sx={{ bgcolor: '#0e1e40', fontWeight: 600 }} onClick={() => window.location.href='/routes/add'}>
+          ADD NEW
+        </Button>
+      </Box>
+      {/* Table */}
+      <Paper elevation={1} sx={{ p: 0, borderRadius: 3 }}>
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Route Name</TableCell>
-            <TableCell>Bus</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableRow sx={{ background: '#f5f7fa' }}>
+              <TableCell sx={{ fontWeight: 700 }}>Code</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Vehicle</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Driver</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Attendant</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Start</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>End</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Stops</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Students</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {routes.map(route => (
-            <TableRow key={route.id}>
-              <TableCell>{route.id}</TableCell>
-              <TableCell>{route.route_name}</TableCell>
-              <TableCell>{route.bus_id}</TableCell>
+            {filteredRoutes.map((row, idx) => (
+              <TableRow
+                key={row.code}
+                sx={row.highlight ? { background: '#f7fafd', fontWeight: 700 } : {}}
+              >
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.code}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.type}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.vehicle}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.driver}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.attendant}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.start}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.end}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.stops}</TableCell>
+                <TableCell sx={row.highlight ? { fontWeight: 700, color: row.highlight ? '#0e1e40' : undefined } : {}}>{row.students}</TableCell>
               <TableCell>
-                <IconButton color="primary" onClick={() => navigate(`/routes/${route.id}`)}>
-                  <Visibility />
-                </IconButton>
-                <IconButton color="warning" onClick={() => handleEditClick(route)}>
-                  <Edit />
-                </IconButton>
-                <IconButton color="error" onClick={() => handleDeleteClick(route)}>
-                  <Delete />
-                </IconButton>
+                  <IconButton color="primary"><Visibility /></IconButton>
+                  <IconButton color="warning"><Edit /></IconButton>
+                  <IconButton color="error"><Delete /></IconButton>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-
-      {/* Add Route Modal */}
-      <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
-        <DialogTitle>Add Bus Route</DialogTitle>
-        <DialogContent>
-          <TextField label="Route Name" fullWidth margin="dense" value={newRoute.route_name} onChange={(e) => setNewRoute({ ...newRoute, route_name: e.target.value })} />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Bus</InputLabel>
-            <Select value={newRoute.bus_id} label="Bus" onChange={(e) => setNewRoute({ ...newRoute, bus_id: e.target.value })}>
-              {buses.map(bus => (
-                <MenuItem key={bus.id} value={bus.id}>{bus.number_plate}</MenuItem>
-              ))}
+      </Paper>
+      {/* Pagination */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography fontSize={15}>Show:</Typography>
+          <Select size="small" value={rowsPerPage} sx={{ minWidth: 60 }}>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={25}>25</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
             </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleAddSubmit}>Add</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit Modal */}
-      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
-        <DialogTitle>Edit Route</DialogTitle>
-        <DialogContent>
-          <TextField label="Route Name" fullWidth margin="dense" value={editedRoute.route_name} onChange={(e) => setEditedRoute({ ...editedRoute, route_name: e.target.value })} />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Bus</InputLabel>
-            <Select value={editedRoute.bus_id} label="Bus" onChange={(e) => setEditedRoute({ ...editedRoute, bus_id: e.target.value })}>
-              {buses.map(bus => (
-                <MenuItem key={bus.id} value={bus.id}>{bus.number_plate}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleEditSubmit}>Save</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete Modal */}
-      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete route "{selectedRoute?.route_name}"?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDeleteConfirm}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Paper>
+        </Box>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button size="small" variant="outlined" sx={{ minWidth: 90 }} disabled>{'< Previous'}</Button>
+          <Pagination count={12} page={page} onChange={(_, v) => setPage(v)} shape="rounded" color="primary" />
+          <Button size="small" variant="outlined" sx={{ minWidth: 90 }}>{'Next >'}</Button>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 

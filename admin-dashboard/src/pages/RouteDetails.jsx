@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { ArrowBack, Menu as MenuIcon, Notifications, Search, CloudUpload, Edit, Delete, Person, DirectionsBus, Add, Pause, PlayArrow, PersonAdd, Link as LinkIcon } from '@mui/icons-material';
 import routeMap from '../assets/route-map.png'; // adjust path as needed
+import StudentListModal from '../components/StudentListModal';
 
 const mockRoute = {
   id: '4C',
@@ -29,12 +30,34 @@ const mockRoute = {
   ]
 };
 
+const mockStudents = [
+  { id: 1, schoolId: 1, name: 'Ganesh Prasana V', gender: 'Male', className: '1A', guardian: 'Nikhil KA + 1' },
+  { id: 2, schoolId: 2, name: 'Walter Paliakkarqaa', gender: 'Male', className: '2D', guardian: 'Nikhil KA + 1' },
+  { id: 3, schoolId: 3, name: 'Nikhil Kumar Sunil', gender: 'Male', className: '2S', guardian: 'Nikhil KA + 1' },
+  { id: 4, schoolId: 4, name: 'Raju J K', gender: 'Male', className: '3A', guardian: 'Nikhil KA + 1' },
+  { id: 5, schoolId: 5, name: 'K.M. Rajan', gender: 'Male', className: '4B', guardian: 'Nikhil KA + 1' },
+];
+
 const RouteDetails = () => {
   const [type, setType] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
-  const selectedStop = 4;
+  const [studentModalOpen, setStudentModalOpen] = React.useState(false);
+  const [selectedStop, setSelectedStop] = React.useState(null);
+
+  const handleStudentsClick = (stop) => {
+    setSelectedStop(stop);
+    setStudentModalOpen(true);
+  };
+
+  const stopInfo = selectedStop ? {
+    routeCode: '4C',
+    routeType: 'TF',
+    stopSeqNo: selectedStop.seq,
+    stopName: selectedStop.name,
+    arrivalTime: selectedStop.time,
+  } : {};
 
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
@@ -127,6 +150,7 @@ const RouteDetails = () => {
             </Box>
             <Box />
           </Box>
+          <Box sx={{ height: 12 }} />
           <Typography fontWeight={700} fontSize={16} mb={1} sx={{ textAlign: 'left' }}>Assigned Assets</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: 2 }}>
             <Box>
@@ -143,8 +167,8 @@ const RouteDetails = () => {
             </Box>
           </Box>
         </Paper>
-        {/* Right: Map Card */}
-        <Paper elevation={0} sx={{ flex: 1, background: 'transparent', borderRadius: 5, p: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 260, height: 260, boxShadow: 'none' }}>
+        {/* Right: Map Card - match shape and size to Route Details card */}
+        <Paper elevation={0} sx={{ flex: 1, background: '#f8fafd', borderRadius: 5, p: 3, boxShadow: '0 2px 12px 0 rgba(16,30,54,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 260, height: 260 }}>
           <img src={routeMap} alt="Route Map" style={{ width: '100%', height: '100%', borderRadius: 20, objectFit: 'cover' }} />
         </Paper>
       </Box>
@@ -171,7 +195,7 @@ const RouteDetails = () => {
                 <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.lat}</TableCell>
                 <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.lng}</TableCell>
                 <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.time}</TableCell>
-                <TableCell sx={{ color: '#ff7043', fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.students}</TableCell>
+                <TableCell sx={{ color: '#ff7043', fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5, cursor: 'pointer' }} onClick={() => handleStudentsClick(stop)}>{stop.students}</TableCell>
                 <TableCell sx={{ textAlign: 'center', py: 1.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                     <LinkIcon sx={{ color: '#ff7043', fontSize: 20 }} />
@@ -214,6 +238,16 @@ const RouteDetails = () => {
           </Box>
         </Box>
       </Paper>
+      <StudentListModal
+        open={studentModalOpen}
+        onClose={() => setStudentModalOpen(false)}
+        stopInfo={stopInfo}
+        students={mockStudents}
+        selectedStudentId={4}
+        onStudentClick={() => {}}
+        onPrev={() => {}}
+        onNext={() => {}}
+      />
     </Box>
   );
 };

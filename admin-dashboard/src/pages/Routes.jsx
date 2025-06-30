@@ -4,6 +4,7 @@ import {
   Box, Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Button, Avatar, Toolbar, TextField, InputAdornment, Select, MenuItem, FormControl, InputLabel, Stack, Pagination, Divider
 } from '@mui/material';
 import { Edit, Delete, Visibility, CloudUpload, Add, Search, Notifications, Menu as MenuIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const mockRoutes = [
   {
@@ -40,6 +41,7 @@ const RoutesPage = () => {
   const [type, setType] = useState('');
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
+  const navigate = useNavigate();
 
   // Filter logic (not functional for mock)
   const filteredRoutes = mockRoutes;
@@ -142,7 +144,7 @@ const RoutesPage = () => {
                 <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.stops}</TableCell>
                 <TableCell sx={row.highlight ? { fontWeight: 700, color: row.highlight ? '#0e1e40' : undefined } : {}}>{row.students}</TableCell>
               <TableCell>
-                  <IconButton color="primary"><Visibility /></IconButton>
+                  <IconButton color="primary" onClick={() => navigate(`/routes/${row.code}`)}><Visibility /></IconButton>
                   <IconButton color="warning"><Edit /></IconButton>
                   <IconButton color="error"><Delete /></IconButton>
               </TableCell>

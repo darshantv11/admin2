@@ -2,224 +2,218 @@
 // --------------------------------------------------
 
 // src/pages/RouteDetails.jsx
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Avatar,
-  Stack,
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, IconButton
+  Box, Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Button, Avatar, Divider, FormControl, Select, MenuItem, InputAdornment, TextField
 } from '@mui/material';
-import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import PersonIcon from '@mui/icons-material/Person';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { ArrowBack, Menu as MenuIcon, Notifications, Search, CloudUpload, Edit, Delete, Person, DirectionsBus, Add, Pause, PlayArrow, PersonAdd, Link as LinkIcon } from '@mui/icons-material';
+import routeMap from '../assets/route-map.png'; // adjust path as needed
+
+const mockRoute = {
+  id: '4C',
+  code: '4C',
+  type: '4C',
+  startTime: '7:00 AM',
+  endTime: '9:30 AM',
+  totalStops: 10,
+  totalStudents: 38,
+  vehicle: 'KA02MC4080',
+  driver: 'Anand Ingalagi',
+  attendant: 'Rocky Bhai',
+  stops: [
+    { seq: 1, name: 'Stop 1', lat: "12.97° North", lng: "77.59° East", time: '9:30', students: 49 },
+    { seq: 2, name: 'Stop 2', lat: "12.97° North", lng: "77.59° East", time: '9:30', students: 38, assign: true },
+    { seq: 3, name: 'Stop 3', lat: "12.97° North", lng: "77.59° East", time: '9:30', students: 40 },
+    { seq: 4, name: 'Stop 4', lat: "12.97° North", lng: "77.59° East", time: '9:30', students: 34, highlight: true },
+    { seq: 5, name: 'Stop 5', lat: "12.97° North", lng: "77.59° East", time: '9:30', students: 12 },
+  ]
+};
 
 const RouteDetails = () => {
-  const { id } = useParams();
-  const [route, setRoute] = useState(null);
-  const [addOpen, setAddOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [selectedStop, setSelectedStop] = useState(null);
-  const [newStop, setNewStop] = useState({
-    name: '',
-    latitude: '',
-    longitude: '',
-    sequence: ''
-  });
-
-  useEffect(() => {
-    fetch(`http://localhost:5000/api/routes/${id}`)
-      .then(res => res.json())
-      .then(data => setRoute(data));
-  }, [id]);
-
-  const refreshRoute = () => {
-    fetch(`http://localhost:5000/api/routes/${id}`)
-      .then(res => res.json())
-      .then(data => setRoute(data));
-  };
-
-  const handleAddStop = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/api/stops', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newStop, route_id: route.id })
-      });
-
-      if (res.ok) {
-        setAddOpen(false);
-        setNewStop({ name: '', latitude: '', longitude: '', sequence: '' });
-        refreshRoute();
-      }
-    } catch (err) {
-      console.error('Failed to add stop', err);
-    }
-  };
-
-  const handleEditStop = (stop) => {
-    setSelectedStop(stop);
-    setNewStop({ ...stop });
-    setEditOpen(true);
-  };
-
-  const handleEditSubmit = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/stops/${selectedStop.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newStop)
-      });
-      if (res.ok) {
-        setEditOpen(false);
-        refreshRoute();
-      }
-    } catch (err) {
-      console.error('Failed to update stop', err);
-    }
-  };
-
-  const handleDeleteStop = async (stopId) => {
-    if (window.confirm('Are you sure you want to delete this stop?')) {
-      try {
-        await fetch(`http://localhost:5000/api/stops/${stopId}`, {
-          method: 'DELETE'
-        });
-        refreshRoute();
-      } catch (err) {
-        console.error('Failed to delete stop', err);
-      }
-    }
-  };
-
-  if (!route) return <Typography sx={{ padding: 4 }}>Loading route details...</Typography>;
+  const [type, setType] = useState('');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 5;
+  const selectedStop = 4;
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Typography variant="h4" gutterBottom color="primary" fontWeight={600}>Route Summary</Typography>
-      <Divider sx={{ mb: 4 }} />
-
-      <Box sx={{ mb: 3 }}>
-        <Card elevation={3} sx={{ backgroundColor: '#f1f5fb' }}>
-          <CardContent>
-            <Typography variant="h6" color="text.secondary" gutterBottom>Route Info</Typography>
-            <Typography variant="body1">ID: <strong>{route.id}</strong></Typography>
-            <Typography variant="body1">Name: <strong>{route.route_name}</strong></Typography>
-          </CardContent>
-        </Card>
+    <Box sx={{ width: '100%', mt: 2 }}>
+      {/* Top Bar */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
+        <IconButton sx={{ mr: 2 }}>
+          <MenuIcon fontSize="large" />
+        </IconButton>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', background: '#f6f8fc', borderRadius: 2, px: 2, py: 0.5, minWidth: 400, maxWidth: 480 }}>
+            <FormControl size="small" sx={{ minWidth: 120, background: 'transparent', mr: 1 }}>
+              <Select value={type} displayEmpty inputProps={{ 'aria-label': 'Select Type' }} sx={{ fontWeight: 500, fontSize: 15 }} onChange={e => setType(e.target.value)}>
+                <MenuItem value="">Select Type</MenuItem>
+                <MenuItem value="TS">TS</MenuItem>
+                <MenuItem value="FS">FS</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              size="small"
+              placeholder="Search"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                startAdornment: null,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Search sx={{ color: '#b0b7c3' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ background: 'transparent', minWidth: 180, fontSize: 15 }}
+            />
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 350, justifyContent: 'flex-end' }}>
+          <Box>
+            <Typography fontWeight={700} fontSize={16} color="#181c32">Welcome Back!</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 8, height: 8, bgcolor: 'green', borderRadius: '50%' }} />
+              <Typography fontSize={13} color="#7e8299">Live: 08:43 AM</Typography>
+            </Box>
+          </Box>
+          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: '#f6f8fc' }} />
+          <Box sx={{ bgcolor: '#fff6f1', borderRadius: '50%', p: 1 }}>
+            <Notifications sx={{ color: '#ff7043' }} />
+          </Box>
+          <Avatar sx={{ bgcolor: '#181c32', width: 40, height: 40, fontWeight: 700, fontSize: 18 }}>WP</Avatar>
+        </Box>
       </Box>
-
-      <Box sx={{ mb: 3 }}>
-        <Card elevation={3} sx={{ backgroundColor: '#e3f2fd' }}>
-          <CardContent>
-            <Typography variant="h6" color="text.secondary" gutterBottom>Bus Assignment</Typography>
-            <Stack direction="row" spacing={4} alignItems="center">
-              <Box>
-                <Avatar sx={{ bgcolor: '#1565c0' }}>
-                  <DirectionsBusIcon />
-                </Avatar>
-              </Box>
-              <Box>
-                <Typography>Bus ID: <strong>{route.bus_id || 'N/A'}</strong></Typography>
-                <Typography>Plate: <strong>{route.number_plate || 'N/A'}</strong></Typography>
-              </Box>
-              <Box>
-                <Avatar sx={{ bgcolor: '#2e7d32' }}>
-                  <PersonIcon />
-                </Avatar>
-              </Box>
-              <Box>
-                <Typography>Driver: <strong>{route.driver_name || 'N/A'}</strong></Typography>
-                <Typography>Attendant: <strong>{route.attender_name || 'N/A'}</strong></Typography>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
+      {/* Page Title */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <IconButton><ArrowBack /></IconButton>
+        <Typography variant="h6" fontWeight={700} sx={{ ml: 1 }}>4C Route Details</Typography>
       </Box>
-
-      <Box>
-        <Card elevation={3}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="text.secondary">Stops</Typography>
-            {route.stops && route.stops.length > 0 ? (
-              <List>
-                {route.stops.map((stop, index) => (
-                  <ListItem key={index} divider
-                    secondaryAction={
-                      <>
-                        <IconButton onClick={() => handleEditStop(stop)} color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDeleteStop(stop.id)} color="error">
-                          <DeleteIcon />
-                        </IconButton>
-                      </>
-                    }>
-                    <ListItemText
-                      primary={<><LocationOnIcon sx={{ mr: 1, color: 'gray' }} />{stop.sequence}. {stop.name}</>}
-                      secondary={`Latitude: ${stop.latitude}, Longitude: ${stop.longitude}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography>No stops assigned.</Typography>
-            )}
-
-            <Button variant="contained" sx={{ mt: 2 }} onClick={() => setAddOpen(true)}>
-              Add Stop
+      {/* Details and Map Row */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+        {/* Left: Route Details Card */}
+        <Paper elevation={0} sx={{ flex: 1, background: '#f8fafd', borderRadius: 5, p: 3, boxShadow: '0 2px 12px 0 rgba(16,30,54,0.06)', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 260, height: 260 }}>
+          <Typography fontWeight={700} fontSize={18} mb={2} sx={{ textAlign: 'left' }}>Route Details</Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', rowGap: 1.5, columnGap: 2, mb: 2 }}>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Route ID</Typography>
+              <Typography fontWeight={700}>4C</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Route Code</Typography>
+              <Typography fontWeight={700}>4C</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Route Type</Typography>
+              <Typography fontWeight={700}>4C</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Start Time</Typography>
+              <Typography fontWeight={700}>7:00 Am</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">End Time</Typography>
+              <Typography fontWeight={700}>9:30 Am</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Total Bus Stops</Typography>
+              <Typography fontWeight={700}>10</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Total Students</Typography>
+              <Typography fontWeight={700}>38</Typography>
+            </Box>
+            <Box />
+          </Box>
+          <Typography fontWeight={700} fontSize={16} mb={1} sx={{ textAlign: 'left' }}>Assigned Assets</Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: 2 }}>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Assigned Vehicle</Typography>
+              <Typography fontWeight={700}>KA02MC4080</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Assigned Driver</Typography>
+              <Typography fontWeight={700}>Anand Ingalagi</Typography>
+            </Box>
+            <Box>
+              <Typography fontSize={13} color="#7e8299">Attendants</Typography>
+              <Typography fontWeight={700}>Rocky Bhai</Typography>
+            </Box>
+          </Box>
+        </Paper>
+        {/* Right: Map Card */}
+        <Paper elevation={0} sx={{ flex: 1, background: 'transparent', borderRadius: 5, p: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 260, height: 260, boxShadow: 'none' }}>
+          <img src={routeMap} alt="Route Map" style={{ width: '100%', height: '100%', borderRadius: 20, objectFit: 'cover' }} />
+        </Paper>
+      </Box>
+      {/* All Stops Table */}
+      <Typography fontWeight={700} fontSize={18} mb={2}>All Stops</Typography>
+      <Paper elevation={0} sx={{ background: '#f8fafd', borderRadius: 5, p: 0, boxShadow: '0 2px 12px 0 rgba(16,30,54,0.06)' }}>
+        <Table sx={{ minWidth: 1000 }}>
+          <TableHead>
+            <TableRow sx={{ background: '#f7f9fc', height: 56 }}>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 80, textAlign: 'center', py: 1.5 }}>Sqnc No</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 120, textAlign: 'center', py: 1.5 }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 150, textAlign: 'center', py: 1.5 }}>Latitude</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 150, textAlign: 'center', py: 1.5 }}>Longitude</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 120, textAlign: 'center', py: 1.5 }}>Arrival Time</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 100, textAlign: 'center', py: 1.5 }}>Students</TableCell>
+              <TableCell sx={{ fontWeight: 700, fontSize: 15, minWidth: 140, textAlign: 'center', py: 1.5, pr: 4 }}>Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {mockRoute.stops.map((stop, idx) => (
+              <TableRow key={stop.seq} sx={stop.highlight ? { background: '#fff', fontWeight: 700, boxShadow: '0 2px 8px 0 rgba(16,30,54,0.04)' } : {}}>
+                <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.seq}</TableCell>
+                <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.name}</TableCell>
+                <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.lat}</TableCell>
+                <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.lng}</TableCell>
+                <TableCell sx={{ fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.time}</TableCell>
+                <TableCell sx={{ color: '#ff7043', fontWeight: stop.highlight ? 700 : 500, fontSize: 15, textAlign: 'center', py: 1.5 }}>{stop.students}</TableCell>
+                <TableCell sx={{ textAlign: 'center', py: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    <LinkIcon sx={{ color: '#ff7043', fontSize: 20 }} />
+                    {stop.assign && <Box component="span" sx={{ color: '#7e8299', fontWeight: 600, fontSize: 13, ml: 0.5 }}>Assign Student</Box>}
+                    <Pause sx={{ color: '#7e8299', fontSize: 20, mx: 0.5 }} />
+                    <PlayArrow sx={{ color: '#7e8299', fontSize: 20, mx: 0.5 }} />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {/* Pagination and Actions */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography fontSize={15}>Show:</Typography>
+            <FormControl size="small" sx={{ minWidth: 60 }}>
+              <Select value={rowsPerPage}>
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={25}>25</MenuItem>
+              </Select>
+            </FormControl>
+            <Button size="small" variant="outlined" sx={{ minWidth: 90 }} disabled>{'< Previous'}</Button>
+            <Button size="small" variant="contained" sx={{ minWidth: 40, bgcolor: '#181c32', color: '#fff', fontWeight: 700 }}>1</Button>
+            <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>2</Button>
+            <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>3</Button>
+            <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>4</Button>
+            <Button size="small" variant="outlined" sx={{ minWidth: 90 }}>{'Next >'}</Button>
+          </Box>
+          {/* Actions */}
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="outlined" startIcon={<Edit />} sx={{ fontWeight: 700, borderColor: '#181c32', color: '#181c32', px: 3 }}>
+              EDIT STOPS
             </Button>
-          </CardContent>
-        </Card>
-      </Box>
-
-      {/* Add Dialog */}
-      <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
-        <DialogTitle>Add New Stop</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Stop Name" margin="dense"
-            value={newStop.name} onChange={(e) => setNewStop({ ...newStop, name: e.target.value })} />
-          <TextField fullWidth label="Latitude" margin="dense"
-            value={newStop.latitude} onChange={(e) => setNewStop({ ...newStop, latitude: e.target.value })} />
-          <TextField fullWidth label="Longitude" margin="dense"
-            value={newStop.longitude} onChange={(e) => setNewStop({ ...newStop, longitude: e.target.value })} />
-          <TextField fullWidth label="Sequence" margin="dense"
-            value={newStop.sequence} onChange={(e) => setNewStop({ ...newStop, sequence: e.target.value })} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleAddStop}>Add</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit Dialog */}
-      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
-        <DialogTitle>Edit Stop</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Stop Name" margin="dense"
-            value={newStop.name} onChange={(e) => setNewStop({ ...newStop, name: e.target.value })} />
-          <TextField fullWidth label="Latitude" margin="dense"
-            value={newStop.latitude} onChange={(e) => setNewStop({ ...newStop, latitude: e.target.value })} />
-          <TextField fullWidth label="Longitude" margin="dense"
-            value={newStop.longitude} onChange={(e) => setNewStop({ ...newStop, longitude: e.target.value })} />
-          <TextField fullWidth label="Sequence" margin="dense"
-            value={newStop.sequence} onChange={(e) => setNewStop({ ...newStop, sequence: e.target.value })} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleEditSubmit}>Save</Button>
-        </DialogActions>
-      </Dialog>
+            <Button variant="contained" startIcon={<Add />} sx={{ fontWeight: 700, bgcolor: '#181c32', px: 3 }}>
+              ADD STOPS
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
     </Box>
   );
 };

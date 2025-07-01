@@ -58,7 +58,7 @@ const RoutesPage = () => {
           <Button variant="outlined" startIcon={<CloudUpload />} sx={{ bgcolor: '#fff', borderColor: '#d1d5db', color: '#0e1e40', fontWeight: 600, height: 40 }}>
             UPLOAD CSV
           </Button>
-          <Button variant="contained" startIcon={<Add />} sx={{ bgcolor: '#0e1e40', fontWeight: 600, height: 40 }} onClick={() => window.location.href='/routes/add'}>
+          <Button variant="contained" startIcon={<Add />} sx={{ bgcolor: '#0e1e40', fontWeight: 600, height: 40 }} onClick={() => navigate('/routes/add')}>
             ADD NEW
           </Button>
         </Box>

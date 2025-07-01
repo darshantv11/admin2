@@ -43,38 +43,43 @@ const mockVehicles = [
   },
 ];
 
+const mockDrivers = [
+  { id: 1, name: 'William Benjamin' },
+  { id: 2, name: 'Sebastian Michael' },
+  { id: 3, name: 'Burke Farrell Idris' },
+  { id: 4, name: 'Charlotte Aria Emma' },
+  { id: 5, name: 'Maverick Sewell' },
+  { id: 6, name: 'Warrick Andrew' },
+  { id: 7, name: 'Kendrick Tedmond' },
+  { id: 8, name: 'Victor Hercules' },
+];
+const mockAttenders = [
+  { id: 1, name: 'William Benji' },
+  { id: 2, name: 'Sebastian Michael' },
+  { id: 3, name: 'Burke Farrell Idris' },
+  { id: 4, name: 'Aria Emma' },
+  { id: 5, name: 'Maverick Sewell' },
+  { id: 6, name: 'Warrick Andrew' },
+  { id: 7, name: 'Kendrick Tedmond' },
+  { id: 8, name: 'Victor Hercules' },
+];
+
 const VehiclesPage = () => {
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState(mockVehicles);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [drivers, setDrivers] = useState([]);
-  const [attenders, setAttenders] = useState([]);
+  const [drivers] = useState(mockDrivers);
+  const [attenders] = useState(mockAttenders);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-
   const [editedVehicle, setEditedVehicle] = useState({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
   const [newVehicle, setNewVehicle] = useState({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
-
   const navigate = useNavigate();
-
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const rowsPerPage = 10;
-
   // Filter logic (not functional for mock)
-  const filteredVehicles = mockVehicles;
-
-  useEffect(() => {
-    fetchVehicles();
-    fetch('http://localhost:5000/api/users?role=driver').then(res => res.json()).then(setDrivers);
-    fetch('http://localhost:5000/api/users?role=attendant').then(res => res.json()).then(setAttenders);
-  }, []);
-
-  const fetchVehicles = () => {
-    fetch('http://localhost:5000/api/vehicles')
-      .then(res => res.json())
-      .then(data => setVehicles(data));
-  };
+  const filteredVehicles = vehicles;
 
   const handleEditClick = (vehicle) => {
     setSelectedVehicle(vehicle);
@@ -90,16 +95,8 @@ const VehiclesPage = () => {
   };
 
   const handleEditSubmit = () => {
-    fetch(`http://localhost:5000/api/vehicles/${selectedVehicle.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedVehicle)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setEditOpen(false);
-        fetchVehicles();
-      });
+    setVehicles(vehicles.map(v => v === selectedVehicle ? { ...selectedVehicle, ...editedVehicle } : v));
+    setEditOpen(false);
   };
 
   const handleDeleteClick = (vehicle) => {
@@ -108,27 +105,14 @@ const VehiclesPage = () => {
   };
 
   const handleDeleteConfirm = () => {
-    fetch(`http://localhost:5000/api/vehicles/${selectedVehicle.id}`, {
-      method: 'DELETE'
-    })
-      .then(() => {
-        setDeleteOpen(false);
-        fetchVehicles();
-      });
+    setVehicles(vehicles.filter(v => v !== selectedVehicle));
+    setDeleteOpen(false);
   };
 
   const handleAddSubmit = () => {
-    fetch('http://localhost:5000/api/vehicles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newVehicle)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setAddOpen(false);
-        setNewVehicle({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
-        fetchVehicles();
-      });
+    setVehicles([...vehicles, { ...newVehicle, code: `Skl${vehicles.length + 1}` }]);
+    setAddOpen(false);
+    setNewVehicle({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
   };
 
   return (

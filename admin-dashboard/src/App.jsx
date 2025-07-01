@@ -36,7 +36,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard.tsx';
 import RoutesPage from './pages/Routes';
 import RouteDetails from './pages/RouteDetails';
 import VehiclesPage from './pages/Vehicles';

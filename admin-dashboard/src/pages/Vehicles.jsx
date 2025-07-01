@@ -4,7 +4,7 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, InputLabel, FormControl, Box, Avatar, InputAdornment, Stack, Divider
 } from '@mui/material';
-import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu as MenuIcon } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu as MenuIcon, ExpandMore, ExpandLess } from '@mui/icons-material';
 import TargetIcon from '../components/TargetIcon';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
@@ -78,6 +78,7 @@ const VehiclesPage = () => {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const rowsPerPage = 10;
+  const [expandedRows, setExpandedRows] = useState({});
   // Filter logic (not functional for mock)
   const filteredVehicles = vehicles;
 
@@ -113,6 +114,10 @@ const VehiclesPage = () => {
     setVehicles([...vehicles, { ...newVehicle, code: `Skl${vehicles.length + 1}` }]);
     setAddOpen(false);
     setNewVehicle({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
+  };
+
+  const handleExpandClick = (code) => {
+    setExpandedRows((prev) => ({ ...prev, [code]: !prev[code] }));
   };
 
   return (
@@ -168,43 +173,71 @@ const VehiclesPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredVehicles.map((row, idx) => (
-              <React.Fragment key={row.code}>
-                <TableRow sx={row.highlight ? { background: '#f7fafd', fontWeight: 700 } : {}}>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.code}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.vehicle}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.route}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.seats}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.driver}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.attendant}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.start}</TableCell>
-                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.end}</TableCell>
-                  <TableCell>
-                    <IconButton color="default"><Visibility /></IconButton>
-                    <IconButton color="default"><Edit /></IconButton>
-                    <IconButton color="default"><Delete /></IconButton>
-                    <IconButton>
-                      <TargetIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-                {/* SubRows for expanded vehicles */}
-                {row.subRows && row.subRows.map((sub, i) => (
-                  <TableRow key={i} sx={sub.highlight ? { background: '#fff', fontWeight: 700 } : {}}>
-                    <TableCell />
-                    <TableCell />
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.route}</TableCell>
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.seats}</TableCell>
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.driver}</TableCell>
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.attendant}</TableCell>
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.start}</TableCell>
-                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.end}</TableCell>
-                    <TableCell />
-                  </TableRow>
-                ))}
-              </React.Fragment>
-            ))}
-          </TableBody>
+  {filteredVehicles.map((row, idx) => (
+    <React.Fragment key={row.code}>
+      <TableRow sx={row.highlight ? { background: '#f7fafd', fontWeight: 700 } : {}}>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.code}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.vehicle}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center' }}>
+            {row.route}
+            {row.subRows && (
+              <IconButton
+                size="small"
+                onClick={() => handleExpandClick(row.code)}
+                sx={{ ml: 1, p: 0.5, verticalAlign: 'middle' }}
+              >
+                {expandedRows[row.code] ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            )}
+          </Box>
+        </TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.seats}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.driver}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.attendant}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.start}</TableCell>
+        <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.end}</TableCell>
+        <TableCell>
+          <IconButton color="default" onClick={() => navigate(`/vehicles/${row.code}`)}>
+            <Visibility />
+          </IconButton>
+          <IconButton color="default"><Edit /></IconButton>
+          <IconButton color="default"><Delete /></IconButton>
+          <IconButton>
+            <TargetIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      {/* SubRows for expanded vehicles */}
+      {row.subRows && expandedRows[row.code] && row.subRows.map((sub, i) => (
+        <TableRow key={i} sx={sub.highlight ? { background: '#fff', fontWeight: 700 } : {}}>
+          <TableCell />
+          <TableCell />
+          <TableCell sx={{ pl: 6, fontWeight: sub.highlight ? 700 : 400 }}>
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center' }}>
+              {sub.route}
+            </Box>
+          </TableCell>
+          <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.seats}</TableCell>
+          <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.driver}</TableCell>
+          <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.attendant}</TableCell>
+          <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.start}</TableCell>
+          <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.end}</TableCell>
+          <TableCell>
+            <IconButton color="default" onClick={() => navigate(`/vehicles/${row.code}`)}>
+              <Visibility />
+            </IconButton>
+            <IconButton color="default"><Edit /></IconButton>
+            <IconButton color="default"><Delete /></IconButton>
+            <IconButton>
+              <TargetIcon />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      ))}
+    </React.Fragment>
+  ))}
+</TableBody>
         </Table>
       </Paper>
       {/* Pagination */}

@@ -4,7 +4,8 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, InputLabel, FormControl, Box, Avatar, InputAdornment, Stack, Divider
 } from '@mui/material';
-import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu as MenuIcon, CheckCircle } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu as MenuIcon } from '@mui/icons-material';
+import TargetIcon from '../components/TargetIcon';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 
@@ -195,10 +196,12 @@ const VehiclesPage = () => {
                   <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.start}</TableCell>
                   <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.end}</TableCell>
                   <TableCell>
-                    <IconButton color="primary"><Visibility /></IconButton>
-                    <IconButton color="success"><CheckCircle /></IconButton>
-                    <IconButton color="warning"><Edit /></IconButton>
-                    <IconButton color="error"><Delete /></IconButton>
+                    <IconButton color="default"><Visibility /></IconButton>
+                    <IconButton color="default"><Edit /></IconButton>
+                    <IconButton color="default"><Delete /></IconButton>
+                    <IconButton>
+                      <TargetIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
                 {/* SubRows for expanded vehicles */}

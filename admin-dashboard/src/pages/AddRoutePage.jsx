@@ -1,59 +1,12 @@
 import React from 'react';
 import { Box, Paper, Typography, TextField, Button, MenuItem, Select, InputLabel, FormControl, IconButton, Divider, Avatar, InputAdornment } from '@mui/material';
 import { Delete, CloudUpload, Menu as MenuIcon, Notifications, Search } from '@mui/icons-material';
+import TopBar from '../components/TopBar';
 
 const AddRoutePage = () => {
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
-      {/* Top Bar: Hamburger, Centered Search, Welcome/Live/Notif/Avatar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
-        {/* Left: Hamburger */}
-        <IconButton sx={{ mr: 2 }}>
-          <MenuIcon fontSize="large" />
-        </IconButton>
-        {/* Center: Search Bar */}
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', background: '#f6f8fc', borderRadius: 2, px: 2, py: 0.5, minWidth: 400, maxWidth: 480 }}>
-            <FormControl size="small" sx={{ minWidth: 120, background: 'transparent', mr: 1 }}>
-              <Select value="" displayEmpty inputProps={{ 'aria-label': 'Select Type' }} sx={{ fontWeight: 500, fontSize: 15 }}>
-                <MenuItem value="">Select Type</MenuItem>
-                <MenuItem value="TS">TS</MenuItem>
-                <MenuItem value="FS">FS</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              size="small"
-              placeholder="Search"
-              variant="standard"
-              InputProps={{
-                disableUnderline: true,
-                startAdornment: null,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Search sx={{ color: '#b0b7c3' }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ background: 'transparent', minWidth: 180, fontSize: 15 }}
-            />
-          </Box>
-        </Box>
-        {/* Right: Welcome, Live, Notification, Avatar */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 350, justifyContent: 'flex-end' }}>
-          <Box>
-            <Typography fontWeight={700} fontSize={16} color="#181c32">Welcome Back!</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 8, height: 8, bgcolor: 'green', borderRadius: '50%' }} />
-              <Typography fontSize={13} color="#7e8299">Live: 08:43 AM</Typography>
-            </Box>
-          </Box>
-          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: '#f6f8fc' }} />
-          <Box sx={{ bgcolor: '#fff6f1', borderRadius: '50%', p: 1 }}>
-            <Notifications sx={{ color: '#ff7043' }} />
-          </Box>
-          <Avatar sx={{ bgcolor: '#181c32', width: 40, height: 40, fontWeight: 700, fontSize: 18 }}>WP</Avatar>
-        </Box>
-      </Box>
+      <TopBar />
       {/* Combined Route Basic Details + Stop Details Card */}
       <Paper elevation={1} sx={{ p: 0, borderRadius: 3, background: '#f7f9fc', overflow: 'hidden', mb: 3 }}>
         <Box sx={{ p: 3, pb: 2 }}>

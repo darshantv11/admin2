@@ -2,10 +2,45 @@
 import React, { useEffect, useState } from 'react';
 import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
-  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, InputLabel, FormControl
+  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, InputLabel, FormControl, Box, Avatar, InputAdornment, Stack, Divider
 } from '@mui/material';
-import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu as MenuIcon, CheckCircle } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import TopBar from '../components/TopBar';
+
+const mockVehicles = [
+  {
+    code: 'Skl1', vehicle: 'KA03MV2109', route: '5C, 4C, 1A', seats: '44/51', driver: 'William Benjamin', attendant: 'William Benji', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl2', vehicle: 'KA03MV2109', route: '1C', seats: '23/30', driver: 'Sebastian Michael', attendant: 'Sebastian Michael', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl3', vehicle: 'KA03MV2109', route: '6C', seats: '23/30', driver: 'Burke Farrell Idris', attendant: 'Burke Farrell Idris', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl4', vehicle: 'KA03MV2109', route: '5T', seats: '23/30', driver: 'Chirta Anto', attendant: 'Anto Akkara', start: '08:00', end: '17:00', highlight: true,
+    subRows: [
+      { route: '4C', seats: '23/30', driver: 'Sebastian Michael', attendant: 'Burke Farrell', start: '08:00', end: '17:00', highlight: true },
+      { route: '4C', seats: '23/30', driver: 'Sebastian Michael', attendant: 'Farrell Idris', start: '16:00', end: '18:00', highlight: true },
+    ]
+  },
+  {
+    code: 'Skl5', vehicle: 'KA03MV2109', route: '3D', seats: '23/30', driver: 'Charlotte Aria Emma', attendant: 'Aria Emma', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl6', vehicle: 'KA03MV2109', route: '1A', seats: '23/30', driver: 'Maverick Sewell', attendant: 'Maverick Sewell', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl7', vehicle: 'KA03MV2109', route: '5R', seats: '23/30', driver: 'Warrick Andrew', attendant: 'Warrick Andrew', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl8', vehicle: 'KA03MV2109', route: '5A', seats: '23/30', driver: 'Kendrick Tedmond', attendant: 'Kendrick Tedmond', start: '08:00', end: '17:00',
+  },
+  {
+    code: 'Skl9', vehicle: 'KA03MV2109', route: '9A', seats: '23/30', driver: 'Victor Hercules', attendant: 'Victor Hercules', start: '08:00', end: '17:00',
+  },
+];
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -20,6 +55,13 @@ const VehiclesPage = () => {
   const [newVehicle, setNewVehicle] = useState({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
 
   const navigate = useNavigate();
+
+  const [search, setSearch] = useState('');
+  const [type, setType] = useState('');
+  const rowsPerPage = 10;
+
+  // Filter logic (not functional for mock)
+  const filteredVehicles = mockVehicles;
 
   useEffect(() => {
     fetchVehicles();
@@ -89,47 +131,114 @@ const VehiclesPage = () => {
   };
 
   return (
-    <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Vehicles
-        <IconButton color="primary" onClick={() => setAddOpen(true)}>
-          <Add />
-        </IconButton>
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Plate</TableCell>
-            <TableCell>Make</TableCell>
-            <TableCell>Model</TableCell>
-            <TableCell>Capacity</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {vehicles.map(vehicle => (
-            <TableRow key={vehicle.id}>
-              <TableCell>{vehicle.id}</TableCell>
-              <TableCell>{vehicle.number_plate}</TableCell>
-              <TableCell>{vehicle.make}</TableCell>
-              <TableCell>{vehicle.model}</TableCell>
-              <TableCell>{vehicle.capacity}</TableCell>
-              <TableCell>
-                <IconButton color="primary" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
-                  <Visibility />
-                </IconButton>
-                <IconButton color="warning" onClick={() => handleEditClick(vehicle)}>
-                  <Edit />
-                </IconButton>
-                <IconButton color="error" onClick={() => handleDeleteClick(vehicle)}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
+    <Box sx={{ p: 0 }}>
+      <TopBar/>
+            
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
+        <Typography variant="h5" fontWeight={700}>Vehicles List</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 140, background: '#fff' }}>
+            {/* <Select value={type} displayEmpty inputProps={{ 'aria-label': 'Select Type' }} sx={{ fontWeight: 500, fontSize: 15 }} onChange={e => setType(e.target.value)}>
+              <MenuItem value="">Select Type</MenuItem>
+              <MenuItem value="TS">TS</MenuItem>
+              <MenuItem value="FS">FS</MenuItem>
+            </Select> */}
+          </FormControl>
+          {/* <TextField
+            size="small"
+            placeholder="Search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            sx={{ background: '#fff', minWidth: 220 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+          /> */}
+          <Button variant="outlined" startIcon={<CloudUpload />} sx={{ ml: 2, bgcolor: '#fff', borderColor: '#d1d5db', color: '#0e1e40', fontWeight: 600 }}>
+            UPLOAD CSV
+          </Button>
+          <Button variant="contained" startIcon={<Add />} sx={{ ml: 1, bgcolor: '#0e1e40', fontWeight: 600 }}>
+            ADD NEW
+          </Button>
+        </Box>
+      </Box>
+      {/* Table */}
+      <Paper elevation={1} sx={{ p: 0, borderRadius: 3 }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ background: '#f5f7fa' }}>
+              <TableCell sx={{ fontWeight: 700 }}>Code</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Vehicle</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Route</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Seats</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Driver</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Attendant</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Start</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>End</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {filteredVehicles.map((row, idx) => (
+              <React.Fragment key={row.code}>
+                <TableRow sx={row.highlight ? { background: '#f7fafd', fontWeight: 700 } : {}}>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.code}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.vehicle}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.route}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.seats}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.driver}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.attendant}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.start}</TableCell>
+                  <TableCell sx={row.highlight ? { fontWeight: 700 } : {}}>{row.end}</TableCell>
+                  <TableCell>
+                    <IconButton color="primary"><Visibility /></IconButton>
+                    <IconButton color="success"><CheckCircle /></IconButton>
+                    <IconButton color="warning"><Edit /></IconButton>
+                    <IconButton color="error"><Delete /></IconButton>
+                  </TableCell>
+                </TableRow>
+                {/* SubRows for expanded vehicles */}
+                {row.subRows && row.subRows.map((sub, i) => (
+                  <TableRow key={i} sx={sub.highlight ? { background: '#fff', fontWeight: 700 } : {}}>
+                    <TableCell />
+                    <TableCell />
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.route}</TableCell>
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.seats}</TableCell>
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.driver}</TableCell>
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.attendant}</TableCell>
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.start}</TableCell>
+                    <TableCell sx={sub.highlight ? { fontWeight: 700 } : {}}>{sub.end}</TableCell>
+                    <TableCell />
+                  </TableRow>
+                ))}
+              </React.Fragment>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+      {/* Pagination */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography fontSize={15}>Show:</Typography>
+          <Select size="small" value={rowsPerPage} sx={{ minWidth: 60 }}>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={25}>25</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+          </Select>
+        </Box>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button size="small" variant="outlined" sx={{ minWidth: 90 }} disabled>{'< Previous'}</Button>
+          <Button size="small" variant="contained" sx={{ minWidth: 40, bgcolor: '#181c32', color: '#fff', fontWeight: 700 }}>1</Button>
+          <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>2</Button>
+          <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>3</Button>
+          <Button size="small" variant="outlined" sx={{ minWidth: 40 }}>4</Button>
+          <Button size="small" variant="outlined" sx={{ minWidth: 90 }}>{'Next >'}</Button>
+        </Stack>
+      </Box>
 
       {/* Add Vehicle Modal */}
       <Dialog open={addOpen} onClose={() => setAddOpen(false)}>
@@ -188,7 +297,7 @@ const VehiclesPage = () => {
           <Button variant="contained" color="error" onClick={handleDeleteConfirm}>Delete</Button>
         </DialogActions>
       </Dialog>
-    </Paper>
+    </Box>
   );
 };
 

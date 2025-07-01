@@ -9,6 +9,7 @@ import {
 import { ArrowBack, Menu as MenuIcon, Notifications, Search, CloudUpload, Edit, Delete, Person, DirectionsBus, Add, Pause, PlayArrow, PersonAdd, Link as LinkIcon } from '@mui/icons-material';
 import routeMap from '../assets/route-map.png'; // adjust path as needed
 import StudentListModal from '../components/StudentListModal';
+import TopBar from '../components/TopBar';
 
 const mockRoute = {
   id: '4C',
@@ -61,54 +62,7 @@ const RouteDetails = () => {
 
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
-      {/* Top Bar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
-        <IconButton sx={{ mr: 2 }}>
-          <MenuIcon fontSize="large" />
-        </IconButton>
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', background: '#f6f8fc', borderRadius: 2, px: 2, py: 0.5, minWidth: 400, maxWidth: 480 }}>
-            <FormControl size="small" sx={{ minWidth: 120, background: 'transparent', mr: 1 }}>
-              <Select value={type} displayEmpty inputProps={{ 'aria-label': 'Select Type' }} sx={{ fontWeight: 500, fontSize: 15 }} onChange={e => setType(e.target.value)}>
-                <MenuItem value="">Select Type</MenuItem>
-                <MenuItem value="TS">TS</MenuItem>
-                <MenuItem value="FS">FS</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              size="small"
-              placeholder="Search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              variant="standard"
-              InputProps={{
-                disableUnderline: true,
-                startAdornment: null,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Search sx={{ color: '#b0b7c3' }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ background: 'transparent', minWidth: 180, fontSize: 15 }}
-            />
-          </Box>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 350, justifyContent: 'flex-end' }}>
-          <Box>
-            <Typography fontWeight={700} fontSize={16} color="#181c32">Welcome Back!</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 8, height: 8, bgcolor: 'green', borderRadius: '50%' }} />
-              <Typography fontSize={13} color="#7e8299">Live: 08:43 AM</Typography>
-            </Box>
-          </Box>
-          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: '#f6f8fc' }} />
-          <Box sx={{ bgcolor: '#fff6f1', borderRadius: '50%', p: 1 }}>
-            <Notifications sx={{ color: '#ff7043' }} />
-          </Box>
-          <Avatar sx={{ bgcolor: '#181c32', width: 40, height: 40, fontWeight: 700, fontSize: 18 }}>WP</Avatar>
-        </Box>
-      </Box>
+      <TopBar />
       {/* Page Title */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <IconButton><ArrowBack /></IconButton>

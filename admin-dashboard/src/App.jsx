@@ -46,6 +46,8 @@ import VehicleDetails from './pages/VehicleDetails';
 import StudentDetails from './pages/StudentDetails';
 import UserDetails from './pages/UserDetails';
 import AddRoutePage from './pages/AddRoutePage';
+import AddVehiclePage from './pages/AddVehiclePage';
+
 
 
 
@@ -61,6 +63,7 @@ function App() {
           <Route path="/routes/add" element={<AddRoutePage />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
           <Route path="/vehicles/:id" element={<VehicleDetails />} />
+          <Route path="/vehicles/add" element={<AddVehiclePage />} />
 
           <Route path="/students" element={<StudentsPage />} />
 <Route path="/students/:id" element={<StudentDetails />} />

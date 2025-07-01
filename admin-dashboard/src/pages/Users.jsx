@@ -2,7 +2,7 @@
 // --------------------------------------------------
 
 // src/pages/Users.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem
@@ -10,9 +10,28 @@ import {
 import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 
+// Mock data
+const mockUsers = {
+  driver: [
+    { id: 1, name: 'William Benjamin', email: 'william@example.com', phone: '9876543210', role: 'driver' },
+    { id: 2, name: 'Sebastian Michael', email: 'sebastian@example.com', phone: '9876543211', role: 'driver' },
+    { id: 3, name: 'Burke Farrell Idris', email: 'burke@example.com', phone: '9876543212', role: 'driver' },
+  ],
+  attendant: [
+    { id: 4, name: 'William Benji', email: 'benji@example.com', phone: '9876543213', role: 'attendant' },
+    { id: 5, name: 'Sebastian Michael', email: 'sebastian.att@example.com', phone: '9876543214', role: 'attendant' },
+    { id: 6, name: 'Burke Farrell Idris', email: 'burke.att@example.com', phone: '9876543215', role: 'attendant' },
+  ],
+  guardian: [
+    { id: 7, name: 'John Doe', email: 'john@example.com', phone: '9876543216', role: 'guardian' },
+    { id: 8, name: 'Jane Smith', email: 'jane@example.com', phone: '9876543217', role: 'guardian' },
+    { id: 9, name: 'Bob Johnson', email: 'bob@example.com', phone: '9876543218', role: 'guardian' },
+  ]
+};
+
 const UsersPage = () => {
   const { role } = useParams();
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(mockUsers[role] || []);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', phone: '', role: role });
@@ -20,34 +39,17 @@ const UsersPage = () => {
   const [editedUser, setEditedUser] = useState({ name: '', email: '', phone: '' });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, [role]);
-
-  const fetchUsers = () => {
-    fetch(`http://localhost:5000/api/users?role=${role}`)
-      .then(res => res.json())
-      .then(data => setUsers(data));
-  };
-
   const handleDeleteClick = (user) => {
-    fetch(`http://localhost:5000/api/users/${user.id}`, {
-      method: 'DELETE'
-    }).then(() => fetchUsers());
+    const updatedUsers = users.filter(u => u.id !== user.id);
+    setUsers(updatedUsers);
   };
 
   const handleAddSubmit = () => {
-    fetch('http://localhost:5000/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newUser)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setAddOpen(false);
-        setNewUser({ name: '', email: '', phone: '', role });
-        fetchUsers();
-      });
+    const newId = Math.max(...users.map(u => u.id)) + 1;
+    const userToAdd = { ...newUser, id: newId };
+    setUsers([...users, userToAdd]);
+    setAddOpen(false);
+    setNewUser({ name: '', email: '', phone: '', role });
   };
 
   const handleEditClick = (user) => {
@@ -57,16 +59,11 @@ const UsersPage = () => {
   };
 
   const handleEditSubmit = () => {
-    fetch(`http://localhost:5000/api/users/${selectedUser.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedUser)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setEditOpen(false);
-        fetchUsers();
-      });
+    const updatedUsers = users.map(u => 
+      u.id === selectedUser.id ? { ...u, ...editedUser } : u
+    );
+    setUsers(updatedUsers);
+    setEditOpen(false);
   };
 
   return (

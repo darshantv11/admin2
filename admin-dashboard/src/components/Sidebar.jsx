@@ -9,6 +9,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openRoutes, setOpenRoutes] = React.useState(true);
+  const [openVehicles, setOpenVehicles] = React.useState(true);
 
   // Helper to check if a path is active
   const isActive = (path) => location.pathname === path;
@@ -69,10 +70,37 @@ const Sidebar = () => {
           </Collapse>
         </Box>
 
-        <ListItem button selected={isActive('/vehicles')} onClick={() => navigate('/vehicles')} sx={{ borderRadius: 2, mx: 1, my: 0.5 }}>
-          <ListItemIcon sx={{ color: 'white' }}><Commute /></ListItemIcon>
-          <ListItemText primary="Vehicles" />
-        </ListItem>
+        {/* Vehicles Section with submenu */}
+        <Box sx={{ background: '#192a56', borderRadius: 3, mx: 1, my: 0.5, p: 0.5 }}>
+          <ListItem button onClick={() => setOpenVehicles(!openVehicles)} sx={{ borderRadius: 2 }}>
+            <ListItemIcon sx={{ color: 'white' }}><Commute /></ListItemIcon>
+            <ListItemText primary="Vehicles" />
+            {openVehicles ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={openVehicles} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem
+                button
+                selected={isActive('/vehicles')}
+                onClick={() => navigate('/vehicles')}
+                sx={{ pl: 5, color: isActive('/vehicles') ? '#ff7043' : 'white', fontWeight: isActive('/vehicles') ? 700 : 400 }}
+              >
+                <ListItemIcon sx={{ color: isActive('/vehicles') ? '#ff7043' : 'white', minWidth: 32 }}><ListAlt /></ListItemIcon>
+                <ListItemText primary="View Vehicles List" />
+              </ListItem>
+              <ListItem
+                button
+                selected={isActive('/vehicles/add')}
+                onClick={() => navigate('/vehicles/add')}
+                sx={{ pl: 5, color: isActive('/vehicles/add') ? '#ff7043' : 'white', fontWeight: isActive('/vehicles/add') ? 700 : 400 }}
+              >
+                <ListItemIcon sx={{ color: isActive('/vehicles/add') ? '#ff7043' : 'white', minWidth: 32 }}><Add /></ListItemIcon>
+                <ListItemText primary="Add new Vehicle" />
+              </ListItem>
+            </List>
+          </Collapse>
+        </Box>
+
         <ListItem button selected={isActive('/drivers')} sx={{ borderRadius: 2, mx: 1, my: 0.5 }}>
           <ListItemIcon sx={{ color: 'white' }}><People /></ListItemIcon>
           <ListItemText primary="Drivers" />

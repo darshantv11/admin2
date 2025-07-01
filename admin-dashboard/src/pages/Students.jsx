@@ -2,7 +2,7 @@
 // --------------------------------------------------
 
 // src/pages/Students.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography, IconButton,
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button
@@ -10,10 +10,31 @@ import {
 import { Edit, Delete, Visibility, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+// Mock data
+const mockStudents = [
+  { id: 1, name: 'Alice Johnson', class: '10th Grade', guardian_id: 1, route_id: 1 },
+  { id: 2, name: 'Bob Smith', class: '9th Grade', guardian_id: 2, route_id: 2 },
+  { id: 3, name: 'Charlie Brown', class: '11th Grade', guardian_id: 3, route_id: 1 },
+  { id: 4, name: 'Diana Prince', class: '8th Grade', guardian_id: 1, route_id: 3 },
+  { id: 5, name: 'Eve Wilson', class: '12th Grade', guardian_id: 2, route_id: 2 },
+];
+
+const mockGuardians = [
+  { id: 1, name: 'John Doe' },
+  { id: 2, name: 'Jane Smith' },
+  { id: 3, name: 'Bob Johnson' },
+];
+
+const mockRoutes = [
+  { id: 1, route_name: 'Route 1A' },
+  { id: 2, route_name: 'Route 2B' },
+  { id: 3, route_name: 'Route 3C' },
+];
+
 const StudentsPage = () => {
-  const [students, setStudents] = useState([]);
-  const [guardians, setGuardians] = useState([]);
-  const [routes, setRoutes] = useState([]);
+  const [students, setStudents] = useState(mockStudents);
+  const [guardians] = useState(mockGuardians);
+  const [routes] = useState(mockRoutes);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', class: '', guardian_id: '', route_id: '' });
@@ -21,39 +42,17 @@ const StudentsPage = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchStudents();
-    fetch('http://localhost:5000/api/users?role=guardian')
-      .then(res => res.json())
-      .then(setGuardians);
-    fetch('http://localhost:5000/api/routes')
-      .then(res => res.json())
-      .then(setRoutes);
-  }, []);
-
-  const fetchStudents = () => {
-    fetch('http://localhost:5000/api/students')
-      .then(res => res.json())
-      .then(data => setStudents(data));
-  };
-
   const handleDeleteClick = (student) => {
-    fetch(`http://localhost:5000/api/students/${student.id}`, {
-      method: 'DELETE'
-    }).then(() => fetchStudents());
+    const updatedStudents = students.filter(s => s.id !== student.id);
+    setStudents(updatedStudents);
   };
 
   const handleAddSubmit = () => {
-    fetch('http://localhost:5000/api/students', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newStudent)
-    }).then(res => res.json())
-      .then(() => {
-        setAddOpen(false);
-        setNewStudent({ name: '', class: '', guardian_id: '', route_id: '' });
-        fetchStudents();
-      });
+    const newId = Math.max(...students.map(s => s.id)) + 1;
+    const studentToAdd = { ...newStudent, id: newId };
+    setStudents([...students, studentToAdd]);
+    setAddOpen(false);
+    setNewStudent({ name: '', class: '', guardian_id: '', route_id: '' });
   };
 
   const handleEditClick = (student) => {
@@ -68,16 +67,11 @@ const StudentsPage = () => {
   };
 
   const handleEditSubmit = () => {
-    fetch(`http://localhost:5000/api/students/${selectedStudent.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedStudent)
-    })
-      .then(res => res.json())
-      .then(() => {
-        setEditOpen(false);
-        fetchStudents();
-      });
+    const updatedStudents = students.map(s => 
+      s.id === selectedStudent.id ? { ...s, ...editedStudent } : s
+    );
+    setStudents(updatedStudents);
+    setEditOpen(false);
   };
 
   return (

@@ -131,7 +131,7 @@ const AddVehiclePage = () => {
           }}
         >
           <Typography variant="h5" sx={{ fontWeight: 700, color: "#181c32" }}>
-            Edit/Add Driver
+            Edit/Add Vehicle
           </Typography>
           <Button
             variant="outlined"
@@ -162,18 +162,19 @@ const AddVehiclePage = () => {
         <Box
           sx={{
             display: "flex",
-            gap: 6,
+            gap: 1,
             justifyContent: "space-between",
             alignItems: "flex-start",
             flexWrap: "nowrap",
+            maxWidth: '100%',
+            width: '100%',
           }}
         >
           {/* Left: Two Driver Details Cards */}
           <Box
             sx={{
-              flex: "0 0 650px",
-              maxWidth: 650,
-              width: "100%",
+              flex: 1,
+              width: '100%',
               display: "flex",
               flexDirection: "column",
               gap: 3,
@@ -200,7 +201,7 @@ const AddVehiclePage = () => {
                     mb: 2,
                   }}
                 >
-                  Drivers Basic Details
+                  Vehicles Basic Details
                 </Typography>
                 <Box
                   sx={{
@@ -220,7 +221,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        Driver Name
+                        Vehicle Number
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -242,7 +243,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        Aadhar No.
+                        Vehicle Type
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -264,7 +265,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        Mobile Number
+                        Manufacturer
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -288,7 +289,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        KYC Status
+                        Vehicle Year
                       </Typography>
                       <TextField
                         select
@@ -317,7 +318,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        License Number
+                        Owner
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -339,7 +340,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        License Expiry
+                        Capacity
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -353,6 +354,7 @@ const AddVehiclePage = () => {
                       />
                     </Box>
                   </Box>
+                  
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <Box sx={{ flex: 1 }}>
                       <Typography
@@ -363,7 +365,7 @@ const AddVehiclePage = () => {
                           mb: 0.5,
                         }}
                       >
-                        Address
+                        Operotor
                       </Typography>
                       <TextField
                         variant="outlined"
@@ -376,8 +378,50 @@ const AddVehiclePage = () => {
                         }}
                       />
                     </Box>
-                    <Box sx={{ flex: 1 }} />
-                    <Box sx={{ flex: 1 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        sx={{
+                          color: "#000",
+                          fontWeight: 600,
+                          fontSize: 15,
+                          mb: 0.5,
+                        }}
+                      >
+                        Model
+                      </Typography>
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        placeholder="Please enter"
+                        sx={{
+                          width: "100%",
+                          background: "#fff",
+                          borderRadius: 2,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        sx={{
+                          color: "#000",
+                          fontWeight: 600,
+                          fontSize: 15,
+                          mb: 0.5,
+                        }}
+                      >
+                        Capacity
+                      </Typography>
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        placeholder="Please enter"
+                        sx={{
+                          width: "100%",
+                          background: "#fff",
+                          borderRadius: 2,
+                        }}
+                      />
+                    </Box>
                   </Box>
                 </Box>
               </Paper>
@@ -386,9 +430,8 @@ const AddVehiclePage = () => {
           {/* Right: Upload Area */}
           <Box
             sx={{
-              flex: "0 0 420px",
-              maxWidth: 420,
-              width: 420,
+              flex: 1,
+              width: '100%',
               display: "flex",
               flexDirection: "column",
               gap: 3,

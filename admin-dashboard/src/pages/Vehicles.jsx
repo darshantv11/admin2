@@ -8,6 +8,7 @@ import { Edit, Delete, Visibility, Add, CloudUpload, Search, Notifications, Menu
 import TargetIcon from '../components/TargetIcon';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
+import Modal from '../components/Modal';
 
 const mockVehicles = [
   {
@@ -74,6 +75,7 @@ const VehiclesPage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [editedVehicle, setEditedVehicle] = useState({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
   const [newVehicle, setNewVehicle] = useState({ number_plate: '', make: '', model: '', capacity: '', driver_id: '', attender_id: '' });
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
@@ -103,11 +105,14 @@ const VehiclesPage = () => {
   const handleDeleteClick = (vehicle) => {
     setSelectedVehicle(vehicle);
     setDeleteOpen(true);
+    setPassword('');
   };
 
-  const handleDeleteConfirm = () => {
-    setVehicles(vehicles.filter(v => v !== selectedVehicle));
+  const handleDeleteConfirm = (id, passwordValue) => {
+    // You can add password validation here if needed
+    setVehicles(vehicles.filter(v => v.code !== id));
     setDeleteOpen(false);
+    setPassword('');
   };
 
   const handleAddSubmit = () => {
@@ -121,7 +126,7 @@ const VehiclesPage = () => {
   };
 
   return (
-    <Box sx={{ p: 0 }}>
+    <Box sx={{ p: 0, ml: 2 }}>
       <TopBar/>
             
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, mt: 2 }}>
@@ -202,7 +207,7 @@ const VehiclesPage = () => {
             <Visibility />
           </IconButton>
           <IconButton color="default"><Edit /></IconButton>
-          <IconButton color="default"><Delete /></IconButton>
+          <IconButton color="default" onClick={() => handleDeleteClick(row)}><Delete /></IconButton>
           <IconButton>
             <TargetIcon />
           </IconButton>
@@ -228,7 +233,7 @@ const VehiclesPage = () => {
               <Visibility />
             </IconButton>
             <IconButton color="default"><Edit /></IconButton>
-            <IconButton color="default"><Delete /></IconButton>
+            <IconButton color="default" onClick={() => handleDeleteClick(sub)}><Delete /></IconButton>
             <IconButton>
               <TargetIcon />
             </IconButton>
@@ -307,16 +312,14 @@ const VehiclesPage = () => {
       </Dialog>
 
       {/* Delete Modal */}
-      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete vehicle "{selectedVehicle?.number_plate}"?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDeleteConfirm}>Delete</Button>
-        </DialogActions>
-      </Dialog>
+      <Modal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDelete={handleDeleteConfirm}
+        id={selectedVehicle ? selectedVehicle.code : ''}
+        password={password}
+        setPassword={setPassword}
+      />
     </Box>
   );
 };

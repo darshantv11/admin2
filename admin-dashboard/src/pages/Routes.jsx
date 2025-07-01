@@ -6,6 +6,7 @@ import {
 import { Edit, Delete, Visibility, CloudUpload, Add, Search, Notifications, Menu as MenuIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
+import Modal from '../components/Modal';
 
 
 const mockRoutes = [
@@ -45,11 +46,34 @@ const RoutesPage = () => {
   const rowsPerPage = 10;
   const navigate = useNavigate();
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [password, setPassword] = useState('');
+  const [routes, setRoutes] = useState(mockRoutes);
+
   // Filter logic (not functional for mock)
-  const filteredRoutes = mockRoutes;
+  const filteredRoutes = routes;
+
+  const handleDeleteClick = (route) => {
+    setSelectedRoute(route);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedRoute(null);
+    setPassword('');
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedRoute) {
+      setRoutes(prev => prev.filter(r => r.code !== selectedRoute.code));
+      handleModalClose();
+    }
+  };
 
   return (
-    <Box sx={{ p: 0 }}>
+    <Box sx={{ p: 0, ml: 2 }}>
       <TopBar />
       {/* Table Title */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -98,7 +122,7 @@ const RoutesPage = () => {
               <TableCell>
                   <IconButton color="primary" onClick={() => navigate(`/routes/${row.code}`)}><Visibility /></IconButton>
                   <IconButton color="warning"><Edit /></IconButton>
-                  <IconButton color="error"><Delete /></IconButton>
+                  <IconButton color="error" onClick={() => handleDeleteClick(row)}><Delete /></IconButton>
               </TableCell>
             </TableRow>
           ))}
@@ -121,6 +145,14 @@ const RoutesPage = () => {
           <Button size="small" variant="outlined" sx={{ minWidth: 90 }}>{'Next >'}</Button>
         </Stack>
       </Box>
+      <Modal
+        open={modalOpen}
+        onClose={handleModalClose}
+        onDelete={handleDeleteConfirm}
+        id={selectedRoute ? selectedRoute.code : ''}
+        password={password}
+        setPassword={setPassword}
+      />
     </Box>
   );
 };

@@ -31,9 +31,9 @@ const VehicleDetailsCard = () => (
     sx={{
       p: 5,
       borderRadius: 4,
-      background: '#f8f9fb',
+      background: '#fff',
       mb: 4,
-      boxShadow: 'none',
+      boxShadow: '0 2px 12px 0 rgba(16,30,54,0.06)',
       width: '100%',
       maxWidth: '100%',
     }}
@@ -120,7 +120,7 @@ const VehicleDetails = () => {
   const vehicleNumber = 'KA03MV2109';
 
   return (
-    <Box sx={{ background: '#f5f7fa', minHeight: '100vh' }}>
+    <Box sx={{ background: "#eef2f6", minHeight: '100vh' }}>
       <TopBar />
       {/* Header below TopBar */}
       <Box

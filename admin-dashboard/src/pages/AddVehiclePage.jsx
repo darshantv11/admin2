@@ -189,8 +189,9 @@ const AddVehiclePage = () => {
                   background: "#eef2f6",
                   boxShadow: "none",
                   mb: 0,
-                  maxWidth: 650,
+                  maxWidth:900,
                   width: "100%",
+                  minHeight: 300,
                 }}
               >
                 <Typography
@@ -447,7 +448,7 @@ const AddVehiclePage = () => {
                 mb: 0,
                 minHeight: 340,
                 width: "100%",
-                maxWidth: 420,
+                maxWidth: 500,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -518,7 +519,7 @@ const AddVehiclePage = () => {
         </Box>
         {/* Upload Documents Card */}
         <Box
-          sx={{ mt: 4, maxWidth: 700, width: "100%", alignSelf: "flex-start" }}
+          sx={{ mt: 4, maxWidth: 775, width: "100%", alignSelf: "flex-start" }}
         >
           <Paper
             sx={{
